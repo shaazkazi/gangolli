@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const SubmitPost = () => {
   const [title, setTitle] = useState('');
@@ -13,6 +15,16 @@ const SubmitPost = () => {
   const headers = {
     'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
     'Content-Type': 'application/json'
+  };
+
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{'list': 'ordered'}, {'list': 'bullet'}],
+      ['link', 'image'],
+      ['clean']
+    ]
   };
 
   const handleLogin = async (e) => {
@@ -39,19 +51,49 @@ const SubmitPost = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('content', content);
-      formData.append('status', 'publish');
-      formData.append('categories', category);
-      if (image) formData.append('featured_media', image);
+      // First create the post
+      const postData = {
+        title: title,
+        content: content,
+        status: 'publish',
+        categories: [category]
+      };
 
-      await axios.post('http://localhost/gangolli/wp-json/wp/v2/posts', formData, { headers });
-      
+      const postResponse = await axios.post(
+        'http://localhost/gangolli/wp-json/wp/v2/posts',
+        postData,
+        { headers }
+      );
+
+      // If there's an image, upload it and set it as featured media
+      if (image) {
+        const mediaFormData = new FormData();
+        mediaFormData.append('file', image);
+
+        const mediaResponse = await axios.post(
+          'http://localhost/gangolli/wp-json/wp/v2/media',
+          mediaFormData,
+          {
+            headers: {
+              ...headers,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+
+        // Set the uploaded image as featured media
+        await axios.post(
+          `http://localhost/gangolli/wp-json/wp/v2/posts/${postResponse.data.id}`,
+          { featured_media: mediaResponse.data.id },
+          { headers }
+        );
+      }
+
       setTitle('');
       setContent('');
       setCategory('');
       setImage(null);
+      
     } catch (error) {
       console.error('Submission failed:', error);
     }
@@ -89,11 +131,12 @@ const SubmitPost = () => {
             placeholder="Post Title"
             required
           />
-          <textarea
+          <ReactQuill 
             value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Post Content"
-            required
+            onChange={setContent}
+            modules={modules}
+            className="content-editor"
+            theme="snow"
           />
           <select
             value={category}

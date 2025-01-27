@@ -10,6 +10,36 @@ const Post = () => {
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [readingTime, setReadingTime] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
+  // Add this state for gallery
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  // Add this inside your post content section
+  const createGalleryView = (content) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    const images = doc.getElementsByTagName('img');
+    
+    if (images.length > 1) {
+      return (
+        <div className="post-gallery">
+          {Array.from(images).map((img, index) => (
+            <div key={index} className="gallery-item" onClick={() => setSelectedImage(img.src)}>
+              <img src={img.src} alt={img.alt || 'Gallery image'} />
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return content;
+  };
+
+  // Add this modal component for image preview
+  {selectedImage && (
+    <div className="image-modal" onClick={() => setSelectedImage(null)}>
+      <button className="close-button">×</button>
+      <img src={selectedImage} alt="Preview" />
+    </div>
+  )}
 
   const calculateReadingTime = useCallback((content) => {
     const wordsPerMinute = 200;

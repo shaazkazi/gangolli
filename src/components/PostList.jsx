@@ -18,8 +18,8 @@ const PostList = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [categories, setCategories] = useState([]);
+  const [categoryPosts, setCategoryPosts] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const PostList = () => {
       try {
         const token = localStorage.getItem('jwt_token');
         const response = await axios.get(
-          `http://localhost/gangolli/wp-json/wp/v2/posts?page=${page}&per_page=7&_embed`,
+          `http://localhost/gangolli/wp-json/wp/v2/posts?per_page=7&_embed`,
           {
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -36,7 +36,6 @@ const PostList = () => {
           }
         );
         setPosts(response.data);
-        setTotalPages(Number(response.headers['x-wp-totalpages']));
         setLoading(false);
       } catch (error) {
         setError('Failed to load posts');
@@ -44,7 +43,40 @@ const PostList = () => {
       }
     };
     fetchPosts();
-  }, [page]);
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const token = localStorage.getItem('jwt_token');
+        const response = await axios.get('http://localhost/gangolli/wp-json/wp/v2/categories', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        setCategories(response.data);
+      
+        const postsData = {};
+        for (const category of response.data) {
+          const postsResponse = await axios.get(
+            `http://localhost/gangolli/wp-json/wp/v2/posts?categories=${category.id}&per_page=5&_embed`,
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+          postsData[category.id] = postsResponse.data;
+        }
+        setCategoryPosts(postsData);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleCardClick = (postId) => {
     navigate(`/post/${postId}`);
@@ -65,19 +97,13 @@ const PostList = () => {
               undefined}>
             {!featuredPost._embedded?.['wp:featuredmedia']?.[0]?.source_url && <DefaultFeaturedImage />}
             <div className="featured-content">
-              <div className="category-tag">Featured</div>
-              <h1>{featuredPost.title.rendered}</h1>
-              <div className="featured-meta">
-                <span className="featured-date">
-                  {new Date(featuredPost.date).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </span>
-                <span className="featured-author">
-                  {featuredPost._embedded?.author?.[0]?.name}
-                </span>
+              <div className="category-tag">
+                <svg className="featured-icon" viewBox="0 0 24 24" width="16" height="16">
+                  <path d="M17.09 4.56c-.7-1.03-1.6-1.9-2.63-2.56-.91 1.22-2.04 2.27-3.32 3.13-3.21 2.14-7.28 2.43-10.73.83 2.05 4.5 2.72 8.29 2.72 12.29 0 .68.02 1.36.06 2.04.43.24.88.46 1.34.65C8.47 19.43 12 16.97 12 16.97s3.53 2.46 7.48 3.97c.46-.19.91-.41 1.34-.65.04-.68.06-1.36.06-2.04 0-4-.67-7.79-2.72-12.29-.37-.8-.76-1.56-1.07-1.4z"/>
+                </svg>
+                Trending
               </div>
+              <h1>{featuredPost.title.rendered}</h1>
               <div className="featured-excerpt" dangerouslySetInnerHTML={{ __html: featuredPost.excerpt.rendered }} />
               <div className="read-more-btn">Read Full Story →</div>
             </div>
@@ -85,18 +111,27 @@ const PostList = () => {
         </div>
       )}
 
-      <div className="trending-section">
-        <h2 className="section-title">Latest News</h2>
+      <div className="latest-posts-section">
+        <div className="latest-posts-header">
+          <h2 className="section-title-single">Latest Posts</h2>
+          <button className="see-more-btn" onClick={() => navigate('/posts')}>
+            See More →
+          </button>
+        </div>
         <div className="news-grid">
-          {regularPosts.map((post) => (
-            <article key={post.id} className="news-card" onClick={() => handleCardClick(post.id)}>
-              <div className="card-image-container">
-                <img 
-                  src={post._embedded?.['wp:featuredmedia']?.[0]?.source_url || '/default-image.png'} 
-                  alt={post.title.rendered}
-                  className="card-image"
-                />
+          {regularPosts.slice(0, 6).map(post => (
+            <article 
+              key={post.id} 
+              className="news-card" 
+              onClick={() => handleCardClick(post.id)}
+            >
+              <div className={`card-image ${!post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? 'no-image' : ''}`}
+                style={post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? 
+                  {backgroundImage: `url(${post._embedded['wp:featuredmedia'][0].source_url})`} : 
+                  undefined}>
+                {!post._embedded?.['wp:featuredmedia']?.[0]?.source_url && <DefaultPostImage />}
                 <div className="publish-date">{new Date(post.date).toLocaleDateString()}</div>
+                <div className="card-overlay"></div>
               </div>
               <div className="card-content">
                 <h3>{post.title.rendered}</h3>
@@ -109,15 +144,42 @@ const PostList = () => {
           ))}
         </div>
       </div>
-      <div className="pagination">
-        <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
-          ← Previous
-        </button>
-        <span className="page-info">Page {page} of {totalPages}</span>
-        <button onClick={() => setPage(p => p + 1)} disabled={page === totalPages}>
-          Next →
-        </button>
-      </div>
+
+      {categories.map(category => (
+        <div key={category.id} className="category-section">
+          <div className="latest-posts-header">
+            <h2 className="section-title-single">{category.name}</h2>
+            <button className="see-more-btn" onClick={() => navigate(`/categories/${category.id}`)}>
+              See More →
+            </button>
+          </div>
+          <div className="news-grid">
+            {categoryPosts[category.id]?.map(post => (
+              <article 
+                key={post.id} 
+                className="news-card" 
+                onClick={() => handleCardClick(post.id)}
+              >
+                <div className={`card-image ${!post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? 'no-image' : ''}`}
+                  style={post._embedded?.['wp:featuredmedia']?.[0]?.source_url ? 
+                    {backgroundImage: `url(${post._embedded['wp:featuredmedia'][0].source_url})`} : 
+                    undefined}>
+                  {!post._embedded?.['wp:featuredmedia']?.[0]?.source_url && <DefaultPostImage />}
+                  <div className="publish-date">{new Date(post.date).toLocaleDateString()}</div>
+                  <div className="card-overlay"></div>
+                </div>
+                <div className="card-content">
+                  <h3>{post.title.rendered}</h3>
+                  <div className="excerpt" dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }} />
+                  <div className="card-meta">
+                    <span className="read-more">Continue Reading →</span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

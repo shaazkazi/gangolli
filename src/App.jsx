@@ -4,24 +4,27 @@ import Home from './pages/Home';
 import Post from './pages/Post';
 import Categories from './pages/Categories';
 import About from './pages/About';
-import Footer from './components/Footer';
+import Header from './components/Header';
 import ScrollToTop from './components/ScrollToTop';
 import SubmitPost from './pages/SubmitPost';
+import CategoryPage from './pages/CategoryPage';
 
 const App = () => {
   return (
     <Router>
       <div className="app-wrapper">
-        <div className="progress-bar" />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/post/:id" element={<Post />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/submit" element={<SubmitPost />} />
-        </Routes>
+        <Header />
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/post/:id" element={<Post />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/categories/:id" element={<CategoryPage />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/submit" element={<SubmitPost />} />
+          </Routes>
+        </div>
         <ScrollToTop />
-        <Footer />
       </div>
     </Router>
   );
