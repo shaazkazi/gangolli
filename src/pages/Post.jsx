@@ -132,7 +132,19 @@ export default function Post() {
     const shareData = {
       title: `${post.title} | GangolliNews`,
       text: cleanExcerpt,
-      url: window.location.href
+      url: window.location.href,
+      image: getImageUrl(post.featured_image)
+    }
+
+    // Add Open Graph meta tags dynamically
+    const ogImage = document.querySelector('meta[property="og:image"]')
+    if (ogImage) {
+      ogImage.setAttribute('content', shareData.image)
+    } else {
+      const meta = document.createElement('meta')
+      meta.setAttribute('property', 'og:image')
+      meta.setAttribute('content', shareData.image)
+      document.head.appendChild(meta)
     }
 
     if (navigator.share) {
