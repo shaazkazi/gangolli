@@ -44,7 +44,7 @@ const PostList = () => {
         const { data: postsData, error: postsError } = await supabase
           .from('posts')
           .select(`
-            id, title, excerpt, created_at, featured_image, category_id,
+            id, title, excerpt, created_at, featured_image, category_id, slug,
             categories(id, name),
             profiles(*)
           `)
@@ -92,9 +92,9 @@ const PostList = () => {
     const fileName = imageUrl.split('/').pop().split('?')[0]
     return `${BUNNY_PULLZONE}/${fileName}`
   }
-  const handleCardClick = (postId) => {
-    navigate(`/post/${postId}`);
-  };
+  const handleCardClick = (post) => {
+    navigate(`/post/${post.slug}`);
+  };  
 
   const [featuredPost, ...regularPosts] = posts;
 
@@ -104,7 +104,7 @@ const PostList = () => {
   return (
     <div className="news-container">
       {featuredPost && (
-        <div className="hero-section" onClick={() => handleCardClick(featuredPost.id)}>
+        <div className="hero-section" onClick={() => handleCardClick(featuredPost)}>
           <div className={`featured-post ${!featuredPost.featured_image ? 'no-image' : ''}`}
             style={featuredPost.featured_image ? { backgroundImage: `url(${getImageUrl(featuredPost.featured_image)})` } : undefined}>
             {!featuredPost.featured_image && <DefaultFeaturedImage />}
@@ -124,7 +124,7 @@ const PostList = () => {
         </div>
         <div className="news-grid">
           {regularPosts.slice(0, 6).map(post => (
-            <article key={post.id} className="news-card" onClick={() => handleCardClick(post.id)}>
+            <article key={post.id} className="news-card" onClick={() => handleCardClick(post)}>
               <div className={`card-image ${!post.featured_image ? 'no-image' : ''}`}
                 style={post.featured_image ? { backgroundImage: `url(${getImageUrl(post.featured_image)})` } : undefined}>
                 {!post.featured_image && <DefaultPostImage />}

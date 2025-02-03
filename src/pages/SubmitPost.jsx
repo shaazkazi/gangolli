@@ -13,6 +13,7 @@ const SubmitPost = () => {
   const [password, setPassword] = useState('');
   const [session, setSession] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [slug, setSlug] = useState('');
   const quillRef = useRef(null);
 
   useEffect(() => {
@@ -51,6 +52,19 @@ const SubmitPost = () => {
     ]
   };
 
+  const generateSlug = (title) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .replace(/\s+/g, '-');
+  };
+
+  const handleTitleChange = (e) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    setSlug(generateSlug(newTitle));
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -83,7 +97,8 @@ const SubmitPost = () => {
             category_id: category,
             featured_image: imageUrl,
             author_id: session.user.id,
-            excerpt: content.substring(0, 200)
+            excerpt: content.substring(0, 200),
+            slug: slug || generateSlug(title)
           }
         ])
         .select();
@@ -94,6 +109,7 @@ const SubmitPost = () => {
       setContent('');
       setCategory('');
       setImage(null);
+      setSlug('');
       
     } catch (error) {
       console.error('Error:', error.message);
@@ -127,10 +143,23 @@ const SubmitPost = () => {
           <input
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={handleTitleChange}
             placeholder="Post Title"
             required
           />
+          <div className="form-group">
+            <label htmlFor="slug">Permalink:</label>
+            <div className="slug-input">
+              <span className="slug-prefix">/post/</span>
+              <input
+                type="text"
+                id="slug"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="post-url-slug"
+              />
+            </div>
+          </div>
           <ReactQuill 
             ref={quillRef}
             value={content}

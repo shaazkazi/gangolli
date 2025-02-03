@@ -3608,3 +3608,140 @@ h1, h2, h3 {
 .author-name {
   font-weight: 500;
 }
+.slug-input {
+  display: flex;
+  align-items: center;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  padding: 0 8px;
+}
+
+.slug-prefix {
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.slug-input input {
+  border: none;
+  background: transparent;
+  padding: 8px;
+  flex: 1;
+}
+.edit-button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.edit-button:hover {
+  opacity: 0.9;
+}
+.post-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.delete-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: #c82333;
+}
+.post-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .post-actions {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    padding: 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .edit-button,
+  .delete-button {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+.fab-container {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 999;
+}
+
+.fab-button {
+  width: 56px;
+  height: 56px;
+  background: var(--accent-color, #2563eb);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.fab-menu {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  background: white;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.fab-button:hover {
+  transform: scale(1.1);
+}
+
+.fab-button:hover .fab-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.fab-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  color: #333;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.fab-item:hover {
+  background: #f5f5f5;
+}
