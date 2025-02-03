@@ -78,7 +78,7 @@ const Categories = () => {
             <div className="category-posts-grid">
               {posts[category.id]?.map((post) => (
                 <Link 
-                  to={`/post/${post.id}`}
+                  to={`/post/${post.slug}`}
                   key={post.id} 
                   className="category-post-card"
                 >

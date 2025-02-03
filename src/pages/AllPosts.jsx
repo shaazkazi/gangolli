@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 const AllPosts = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -38,12 +40,22 @@ const AllPosts = () => {
     const fileName = imageUrl.split('/').pop().split('?')[0]
     return `${BUNNY_PULLZONE}/${fileName}`
   }
+
+  const handleCardClick = (slug) => {
+    navigate(`/post/${slug}`);
+  };
+
   return (
     <div className="news-container">
       <h1 className="section-title">All Posts</h1>
       <div className="news-grid">
         {posts.map(post => (
-          <article key={post.id} className="news-card">
+          <article 
+            key={post.slug} 
+            className="news-card" 
+            onClick={() => handleCardClick(post.slug)}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="card-image" 
               style={{backgroundImage: `url(${post.featured_image})`}}>
               <div className="publish-date">

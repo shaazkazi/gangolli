@@ -24,7 +24,7 @@ const CategoryPage = () => {
         const { data: categoryData, error: categoryError } = await supabase
           .from('categories')
           .select('*')
-          .eq('id', id)
+          .eq('slug', slug)
           .single();
 
         if (categoryError) throw categoryError;
@@ -64,7 +64,7 @@ const CategoryPage = () => {
       </div>
       <div className="news-grid">
         {posts.map(post => (
-          <article key={post.id} className="news-card">
+          <article key={post.slug} className="news-card">
             <div className="card-image" 
               style={{backgroundImage: `url(${getImageUrl(post.featured_image)})`}}>
               <div className="publish-date">
