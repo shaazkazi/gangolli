@@ -167,7 +167,14 @@ const SubmitPost = () => {
               src={URL.createObjectURL(image)} 
               alt="Preview" 
               className="image-preview" 
-            />
+            style={{
+              maxWidth: '200px',
+              maxHeight: '200px',
+              objectFit: 'cover',
+              borderRadius: '8px',
+              margin: '16px 0'
+            }}
+          />
           )}
           <button type="submit">Publish Post</button>
         </form>
@@ -175,5 +182,4 @@ const SubmitPost = () => {
     </div>
   );
 };
-
 export default SubmitPost;
