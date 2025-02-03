@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { supabase } from '../utils/supabaseClient';
 import Header from '../components/Header';
+
+const BUNNY_PULLZONE = 'https://gangolliassets.b-cdn.net'
+
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return null
+  const fileName = imageUrl.split('/').pop().split('?')[0]
+  return `${BUNNY_PULLZONE}/${fileName}`
+}
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -12,25 +20,28 @@ const Categories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const token = localStorage.getItem('jwt_token');
-        const headers = {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        };
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('categories')
+          .select('*')
+          .order('name');
 
-        const response = await axios.get(
-          'http://localhost/gangolli/wp-json/wp/v2/categories',
-          { headers }
-        );
-        setCategories(response.data);
+        if (categoriesError) throw categoriesError;
+        setCategories(categoriesData);
         
         const postsData = {};
-        for (const category of response.data) {
-          const postsResponse = await axios.get(
-            `http://localhost/gangolli/wp-json/wp/v2/posts?categories=${category.id}&per_page=4&_embed`,
-            { headers }
-          );
-          postsData[category.id] = postsResponse.data;
+        for (const category of categoriesData) {
+          const { data: categoryPostsData } = await supabase
+            .from('posts')
+            .select(`
+              *,
+              categories(*),
+              profiles(*)
+            `)
+            .eq('category_id', category.id)
+            .order('created_at', { ascending: false })
+            .limit(4);
+
+          postsData[category.id] = categoryPostsData;
         }
         setPosts(postsData);
         setLoading(false);
@@ -42,6 +53,7 @@ const Categories = () => {
 
     fetchCategories();
   }, []);
+
   if (loading) return <div className="loader"><div className="spinner"></div></div>;
   if (error) return <div className="error-message">{error}</div>;
 
@@ -73,12 +85,12 @@ const Categories = () => {
                   <div 
                     className="post-image"
                     style={{
-                      backgroundImage: `url(${post._embedded?.['wp:featuredmedia']?.[0]?.source_url})`
+                      backgroundImage: `url(${getImageUrl(post.featured_image)})`
                     }}
                   >
                     <div className="post-overlay">
                       <span className="post-date">
-                        {new Date(post.date).toLocaleDateString('en-US', {
+                        {new Date(post.created_at).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric'
                         })}
@@ -86,11 +98,8 @@ const Categories = () => {
                     </div>
                   </div>
                   <div className="post-content">
-                    <h3 dangerouslySetInnerHTML={{ __html: post.title.rendered }}></h3>
-                    <div 
-                      className="post-excerpt"
-                      dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }}
-                    />
+                    <h3>{post.title}</h3>
+                    <div className="post-excerpt">{post.excerpt}</div>
                   </div>
                 </Link>
               ))}

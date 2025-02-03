@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import { supabase } from '../utils/supabaseClient';
 import Header from '../components/Header';
+
+const BUNNY_PULLZONE = 'https://gangolliassets.b-cdn.net'
+
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return null
+  const fileName = imageUrl.split('/').pop().split('?')[0]
+  return `${BUNNY_PULLZONE}/${fileName}`
+}
 
 const CategoryPage = () => {
   const { id } = useParams();
@@ -12,25 +20,29 @@ const CategoryPage = () => {
   useEffect(() => {
     const fetchCategoryPosts = async () => {
       try {
-        const token = localStorage.getItem('jwt_token');
-        const headers = {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        };
-
         // Fetch category details
-        const categoryResponse = await axios.get(
-          `http://localhost/gangolli/wp-json/wp/v2/categories/${id}`,
-          { headers }
-        );
-        setCategory(categoryResponse.data);
+        const { data: categoryData, error: categoryError } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (categoryError) throw categoryError;
+        setCategory(categoryData);
 
         // Fetch posts for this category
-        const postsResponse = await axios.get(
-          `http://localhost/gangolli/wp-json/wp/v2/posts?categories=${id}&_embed`,
-          { headers }
-        );
-        setPosts(postsResponse.data);
+        const { data: postsData, error: postsError } = await supabase
+          .from('posts')
+          .select(`
+            *,
+            categories(*),
+            profiles(*)
+          `)
+          .eq('category_id', id)
+          .order('created_at', { ascending: false });
+
+        if (postsError) throw postsError;
+        setPosts(postsData);
         setLoading(false);
       } catch (error) {
         console.error('Error:', error);
@@ -45,6 +57,7 @@ const CategoryPage = () => {
 
   return (
     <div className="category-page">
+      <Header />
       <div className="category-hero">
         <h1>{category?.name}</h1>
         <p>{category?.description}</p>
@@ -53,14 +66,14 @@ const CategoryPage = () => {
         {posts.map(post => (
           <article key={post.id} className="news-card">
             <div className="card-image" 
-              style={{backgroundImage: `url(${post._embedded?.['wp:featuredmedia']?.[0]?.source_url})`}}>
+              style={{backgroundImage: `url(${getImageUrl(post.featured_image)})`}}>
               <div className="publish-date">
-                {new Date(post.date).toLocaleDateString()}
+                {new Date(post.created_at).toLocaleDateString()}
               </div>
             </div>
             <div className="card-content">
-              <h3>{post.title.rendered}</h3>
-              <div className="excerpt" dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }} />
+              <h3>{post.title}</h3>
+              <div className="excerpt">{post.excerpt}</div>
             </div>
           </article>
         ))}

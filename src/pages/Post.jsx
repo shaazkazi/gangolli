@@ -1,19 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import { useEffect, useState } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { supabase } from '../utils/supabaseClient'
 import Header from '../components/Header';
 
-const Post = () => {
-  const { id } = useParams();
-  const [post, setPost] = useState(null);
+export default function Post() {
+  const { id } = useParams()
+  const [post, setPost] = useState(null)
   const [loading, setLoading] = useState(true);
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [readingTime, setReadingTime] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
-  // Add this state for gallery
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // Add this inside your post content section
   const createGalleryView = (content) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, 'text/html');
@@ -33,66 +31,42 @@ const Post = () => {
     return content;
   };
 
-  // Add this modal component for image preview
-  {selectedImage && (
-    <div className="image-modal" onClick={() => setSelectedImage(null)}>
-      <button className="close-button">×</button>
-      <img src={selectedImage} alt="Preview" />
-    </div>
-  )}
-
-  const calculateReadingTime = useCallback((content) => {
+  const calculateReadingTime = (content) => {
     const wordsPerMinute = 200;
     const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length;
     return Math.ceil(words / wordsPerMinute);
-  }, []);
+  };
 
   useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const token = localStorage.getItem('jwt_token');
-        const response = await axios.get(
-          `http://localhost/gangolli/wp-json/wp/v2/posts/${id}?_embed`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-        setPost(response.data);
-        
-        if (response.data.categories?.length) {
-          const relatedResponse = await axios.get(
-            `http://localhost/gangolli/wp-json/wp/v2/posts?categories=${response.data.categories[0]}&exclude=${id}&per_page=3&_embed`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              }
-            }
-          );
-          setRelatedPosts(relatedResponse.data);
-        }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error('Error:', error);
-        setLoading(false);
+    async function getPost() {
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          categories (*),
+          profiles (*)
+        `)
+        .eq('id', id)
+        .single()
+
+      if (error) {
+        console.error('Error:', error)
+        setLoading(false)
+        return
       }
-    };
 
-    fetchPost();
-    window.scrollTo(0, 0);
-  }, [id]);
+      setPost(data)
+      setLoading(false)
 
-  useEffect(() => {
-    if (post?.content?.rendered) {
-      setReadingTime(calculateReadingTime(post.content.rendered));
+      if (data.content) {
+        setReadingTime(calculateReadingTime(data.content));
+      }
     }
-  }, [post, calculateReadingTime]);
 
-  // Separate useEffect for scroll progress
+    getPost()
+    window.scrollTo(0, 0);
+  }, [id])
+
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY;
@@ -104,18 +78,17 @@ const Post = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
   if (loading) return <div className="loader"><div className="spinner"></div></div>;
   if (!post) return <div className="error-message">Post not found</div>;
 
   const handleShare = async () => {
-    // Clean excerpt text by removing HTML tags and limiting length
-    const cleanExcerpt = post.excerpt.rendered
+    const cleanExcerpt = post.excerpt
       .replace(/<[^>]*>/g, '')
       .slice(0, 140) + '...';
 
-    // Create SEO-friendly share data
     const shareData = {
-      title: `${post.title.rendered} | GangolliNews`,
+      title: `${post.title} | GangolliNews`,
       text: cleanExcerpt,
       url: window.location.href
     };
@@ -143,22 +116,22 @@ const Post = () => {
       <div className="progress-bar" style={{ width: `${scrollProgress}%` }} />
       <Header />
       <article className="single-post">
-        {post._embedded?.['wp:featuredmedia']?.[0]?.source_url && (
+        {post.featured_image && (
           <div 
             className="post-hero" 
-            style={{ backgroundImage: `url(${post._embedded['wp:featuredmedia'][0].source_url})` }}
+            style={{ backgroundImage: `url(${post.featured_image})` }}
           >
             <div className="post-hero-overlay"></div>
           </div>
         )}
         <div className="post-container">
-          {post._embedded?.['wp:term']?.[0]?.[0]?.name && (
-            <div className="post-category">{post._embedded['wp:term'][0][0].name}</div>
+          {post.categories?.name && (
+            <div className="post-category">{post.categories.name}</div>
           )}
-          <h1 dangerouslySetInnerHTML={{ __html: post.title.rendered }}></h1>
+          <h1 dangerouslySetInnerHTML={{ __html: post.title }}></h1>
           <div className="post-meta">
             <span className="post-date">
-              {new Date(post.date).toLocaleDateString('en-US', {
+              {new Date(post.created_at).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
@@ -166,44 +139,19 @@ const Post = () => {
             </span>
             <span className="reading-time">{readingTime} min read</span>
             <span className="post-author">
-              By {post._embedded?.author?.[0]?.name}
+              By {post.profiles?.name}
             </span>
             <button onClick={handleShare} className="share-button">Share</button>
           </div>
-          <div className="post-content" dangerouslySetInnerHTML={{ __html: post.content.rendered }} />
-                      {relatedPosts.length > 0 && (
-                        <div className="related-posts">
-                          <h2>Related Stories</h2>
-                          <div className="related-posts-grid">
-                            {relatedPosts.map(relatedPost => (
-                              <Link 
-                                to={`/post/${relatedPost.id}`} 
-                                key={relatedPost.id}
-                                className="related-post-card"
-                              >
-                                <div 
-                                  className="related-post-image"
-                                  style={{
-                                    backgroundImage: `url(${relatedPost._embedded['wp:featuredmedia']?.[0]?.source_url})`
-                                  }}
-                                >
-                                  <div className="post-meta-info">
-                                    {new Date(relatedPost.date).toLocaleDateString('en-US', {
-                                      month: 'short',
-                                      day: 'numeric'
-                                    })}
-                                  </div>
-                                </div>
-                                <h3 dangerouslySetInnerHTML={{ __html: relatedPost.title.rendered }}></h3>
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+          <div className="post-content" dangerouslySetInnerHTML={{ __html: post.content }} />
+          {selectedImage && (
+            <div className="image-modal" onClick={() => setSelectedImage(null)}>
+              <button className="close-button">×</button>
+              <img src={selectedImage} alt="Preview" />
+            </div>
+          )}
+        </div>
       </article>
     </div>
   );
-};
-
-export default Post;
+}

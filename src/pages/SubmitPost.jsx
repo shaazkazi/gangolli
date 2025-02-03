@@ -1,21 +1,45 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import React, { useState, useRef, useEffect } from 'react';
+import { supabase } from '../utils/supabaseClient';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+import { uploadImage } from '../utils/imageUpload';
 
 const SubmitPost = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
   const [image, setImage] = useState(null);
-  const [token, setToken] = useState('');
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [session, setSession] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const quillRef = useRef(null);
 
-  const headers = {
-    'Authorization': `Bearer ${localStorage.getItem('jwt_token')}`,
-    'Content-Type': 'application/json'
-  };
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+      setCategories(data || []);
+    };
+    
+    fetchCategories();
+  }, []);
 
   const modules = {
     toolbar: [
@@ -29,65 +53,42 @@ const SubmitPost = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
     try {
-      const response = await axios.post(`http://localhost/gangolli/wp-json/api/v1/token`, {
-        username,
-        password
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
       });
-      
-      const token = response.data.jwt_token;
-      setToken(token);
-      localStorage.setItem('jwt_token', token);
 
+      if (error) throw error;
     } catch (error) {
-      console.log('Authentication details:', error.response?.data);
+      console.error('Authentication failed:', error.message);
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     try {
-      // First create the post
-      const postData = {
-        title: title,
-        content: content,
-        status: 'publish',
-        categories: [category]
-      };
-
-      const postResponse = await axios.post(
-        'http://localhost/gangolli/wp-json/wp/v2/posts',
-        postData,
-        { headers }
-      );
-
-      // If there's an image, upload it and set it as featured media
+      let imageUrl = null;
       if (image) {
-        const mediaFormData = new FormData();
-        mediaFormData.append('file', image);
-
-        const mediaResponse = await axios.post(
-          'http://localhost/gangolli/wp-json/wp/v2/media',
-          mediaFormData,
-          {
-            headers: {
-              ...headers,
-              'Content-Type': 'multipart/form-data',
-            },
-          }
-        );
-
-        // Set the uploaded image as featured media
-        await axios.post(
-          `http://localhost/gangolli/wp-json/wp/v2/posts/${postResponse.data.id}`,
-          { featured_media: mediaResponse.data.id },
-          { headers }
-        );
+        imageUrl = await uploadImage(image);
       }
+
+      const { data, error } = await supabase
+        .from('posts')
+        .insert([
+          {
+            title,
+            content,
+            category_id: category,
+            featured_image: imageUrl,
+            author_id: session.user.id,
+            excerpt: content.substring(0, 200)
+          }
+        ])
+        .select();
+
+      if (error) throw error;
 
       setTitle('');
       setContent('');
@@ -95,26 +96,24 @@ const SubmitPost = () => {
       setImage(null);
       
     } catch (error) {
-      console.error('Submission failed:', error);
+      console.error('Error:', error.message);
     }
   };
 
   return (
     <div className="submit-post-page">
-      {!token ? (
+      {!session ? (
         <form onSubmit={handleLogin} className="login-form">
           <h2>Login to Submit Post</h2>
           <input 
-            type="text" 
-            name="username" 
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username" 
+            type="email" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email" 
             required 
           />
           <input 
             type="password" 
-            name="password" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password" 
@@ -122,7 +121,8 @@ const SubmitPost = () => {
           />
           <button type="submit">Login</button>
         </form>
-      ) : (        <form onSubmit={handleSubmit} className="post-form">
+      ) : (
+        <form onSubmit={handleSubmit} className="post-form">
           <h2>Submit New Post</h2>
           <input
             type="text"
@@ -132,6 +132,7 @@ const SubmitPost = () => {
             required
           />
           <ReactQuill 
+            ref={quillRef}
             value={content}
             onChange={setContent}
             modules={modules}
@@ -144,8 +145,11 @@ const SubmitPost = () => {
             required
           >
             <option value="">Select Category</option>
-            <option value="1">News</option>
-            <option value="2">Events</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
           </select>
           <div className="image-upload">
             <input

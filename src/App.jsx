@@ -8,6 +8,7 @@ import Header from './components/Header';
 import ScrollToTop from './components/ScrollToTop';
 import SubmitPost from './pages/SubmitPost';
 import CategoryPage from './pages/CategoryPage';
+import AllPosts from './pages/AllPosts'; // Create this new component
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/post/:id" element={<Post />} />
+            <Route path="/posts" element={<AllPosts />} /> {/* Add this new route */}
             <Route path="/categories" element={<Categories />} />
             <Route path="/categories/:id" element={<CategoryPage />} />
             <Route path="/about" element={<About />} />
