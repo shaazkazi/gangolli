@@ -138,31 +138,37 @@ const PostList = () => {
           ))}
         </div>
       </div>
-
-      {categories.map(category => (
-        <div key={category.id} className="category-section">
-          <div className="category-header">
-            <h2 className="section-title-single">{category.name}</h2>
-            <button className="see-more-btn" onClick={() => navigate(`/categories/${category.id}`)}>See More →</button>
+        {categories.map(category => (
+          <div key={category.id} className="category-section">
+            <div className="category-header">
+              <h2 className="section-title-single">{category.name}</h2>
+              <button className="see-more-btn" onClick={() => navigate(`/categories/${category.id}`)}>
+                See More →
+              </button>
+            </div>
+            <div className="news-grid">
+              {categoryPosts[category.id]?.map(post => (
+                <article
+                  key={post.id}
+                  className="news-card"
+                  onClick={() => navigate(`/post/${post.slug}`)}
+                >
+                  <div className="card-image"
+                    style={{backgroundImage: `url(${getImageUrl(post.featured_image)})`}}>
+                    <div className="publish-date">
+                      {new Date(post.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="card-content">
+                    <h3>{post.title}</h3>
+                    <div className="excerpt">{post.excerpt}</div>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
-          <div className="news-grid">
-            {categoryPosts[category.id]?.map(post => (
-              <article key={post.id} className="news-card" onClick={() => handleCardClick(post.id)}>
-                <div className={`card-image ${!post.featured_image ? 'no-image' : ''}`}
-                  style={post.featured_image ? { backgroundImage: `url(${getImageUrl(post.featured_image)})` } : undefined}>
-                  {!post.featured_image && <DefaultPostImage />}
-                  <div className="publish-date">{new Date(post.created_at).toLocaleDateString()}</div>
-                </div>
-                <div className="card-content">
-                  <h3>{post.title}</h3>
-                  <div className="excerpt">{stripHtml(post.excerpt)}</div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
   );
 };
 
