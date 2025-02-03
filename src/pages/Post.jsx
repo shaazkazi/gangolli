@@ -192,7 +192,7 @@ export default function Post() {
           {post.categories?.name && (
             <div className="post-category">{post.categories.name}</div>
           )}
-          <h1 className="mixed-content" dangerouslySetInnerHTML={{ __html: post.title }}></h1>
+          <h1 className="mixed-content" lang="kn" dangerouslySetInnerHTML={{ __html: post.title }}></h1>
           <div className="post-meta">
             <span className="post-date">
               {new Date(post.created_at).toLocaleDateString('en-US', {
@@ -214,7 +214,7 @@ export default function Post() {
             </div>
             <button onClick={handleShare} className="share-button">Share</button>
           </div>
-          <div className="post-content mixed-content" dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div className="post-content mixed-content kannada-text" dangerouslySetInnerHTML={{ __html: post.content }} />
           {selectedImage && (
             <div className="image-modal" onClick={() => setSelectedImage(null)}>
               <button className="close-button">×</button>

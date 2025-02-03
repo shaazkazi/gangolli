@@ -39,7 +39,7 @@ const Footer = () => {
       </div>
       
       <div className="footer-bottom">
-        <p>© 2024 GangolliNews. All rights reserved.</p>
+        <p>© 2025 GangolliNews. All rights reserved.</p>
       </div>
     </footer>
   );

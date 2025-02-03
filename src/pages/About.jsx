@@ -89,7 +89,7 @@ const About = () => {
             <div className="contact-info">
               <div className="info-item">
                 <h3>Visit Us</h3>
-                <p>123 News Street<br />Gangolli, Karnataka<br />India 576233</p>
+                <br />Gangolli, Karnataka<br />India 576216
               </div>
               <div className="info-item">
                 <h3>Contact</h3>

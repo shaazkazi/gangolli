@@ -3786,3 +3786,62 @@ h1, h2, h3 {
     height: 24px;
   }
 }
+.category-hero {
+  background: linear-gradient(to right, var(--accent-color), var(--accent-color-dark));
+  padding: 4rem 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: white;
+}
+
+.category-hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.category-label {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.category-hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 1rem 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.category-hero p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 1rem auto;
+  line-height: 1.6;
+}
+
+.category-meta {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+.kannada-text {
+  font-family: 'Baloo Tamma 2', system-ui, -apple-system, sans-serif;
+}
+
+.kannada-text h1, 
+.kannada-text h2, 
+.kannada-text h3,
+.kannada-text p {
+  font-family: 'Baloo Tamma 2', system-ui, -apple-system, sans-serif;
+}
+.mixed-content {
+  font-family: 'Baloo Tamma 2', var(--font-kannada), system-ui;
+}
+
+/* For English text within mixed content */
+.mixed-content:lang(en) {
+  font-family: var(--font-english), system-ui;
+}

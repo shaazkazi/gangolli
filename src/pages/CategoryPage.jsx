@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import Header from '../components/Header';
 
@@ -12,7 +12,8 @@ const getImageUrl = (imageUrl) => {
 }
 
 const CategoryPage = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,29 +21,27 @@ const CategoryPage = () => {
   useEffect(() => {
     const fetchCategoryPosts = async () => {
       try {
-        // Fetch category details
-        const { data: categoryData, error: categoryError } = await supabase
+        const { data: categoryData } = await supabase
           .from('categories')
           .select('*')
           .eq('slug', slug)
           .single();
 
-        if (categoryError) throw categoryError;
-        setCategory(categoryData);
+        if (categoryData) {
+          setCategory(categoryData);
 
-        // Fetch posts for this category
-        const { data: postsData, error: postsError } = await supabase
-          .from('posts')
-          .select(`
-            *,
-            categories(*),
-            profiles(*)
-          `)
-          .eq('category_id', id)
-          .order('created_at', { ascending: false });
+          const { data: postsData } = await supabase
+            .from('posts')
+            .select(`
+              *,
+              categories(*),
+              profiles(*)
+            `)
+            .eq('category_id', categoryData.id)
+            .order('created_at', { ascending: false });
 
-        if (postsError) throw postsError;
-        setPosts(postsData);
+          setPosts(postsData || []);
+        }
         setLoading(false);
       } catch (error) {
         console.error('Error:', error);
@@ -51,7 +50,11 @@ const CategoryPage = () => {
     };
 
     fetchCategoryPosts();
-  }, [id]);
+  }, [slug]);
+
+  const handlePostClick = (post) => {
+    navigate(`/post/${post.slug}`);
+  };
 
   if (loading) return <div className="loader"><div className="spinner"></div></div>;
 
@@ -59,12 +62,22 @@ const CategoryPage = () => {
     <div className="category-page">
       <Header />
       <div className="category-hero">
-        <h1>{category?.name}</h1>
-        <p>{category?.description}</p>
+        <div className="category-hero-content">
+          <span className="category-label">Category</span>
+          <h1>{category?.name}</h1>
+          {category?.description && <p>{category?.description}</p>}
+          <div className="category-meta">
+            <span>{posts.length} Stories</span>
+          </div>
+        </div>
       </div>
       <div className="news-grid">
         {posts.map(post => (
-          <article key={post.slug} className="news-card">
+          <article 
+            key={post.id} 
+            className="news-card"
+            onClick={() => handlePostClick(post)}
+          >
             <div className="card-image" 
               style={{backgroundImage: `url(${getImageUrl(post.featured_image)})`}}>
               <div className="publish-date">
