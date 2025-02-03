@@ -128,7 +128,7 @@ export default function Post() {
           {post.categories?.name && (
             <div className="post-category">{post.categories.name}</div>
           )}
-          <h1 dangerouslySetInnerHTML={{ __html: post.title }}></h1>
+          <h1 className="mixed-content" dangerouslySetInnerHTML={{ __html: post.title }}></h1>
           <div className="post-meta">
             <span className="post-date">
               {new Date(post.created_at).toLocaleDateString('en-US', {

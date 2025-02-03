@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/baloo-tamma-2": "^5.1.1",
+    "@fontsource/poppins": "^5.1.1",
     "@supabase/supabase-js": "^2.48.1",
     "axios": "^1.7.9",
     "react": "^18.3.1",

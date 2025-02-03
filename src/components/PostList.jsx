@@ -130,10 +130,10 @@ const PostList = () => {
                 {!post.featured_image && <DefaultPostImage />}
                 <div className="publish-date">{new Date(post.created_at).toLocaleDateString()}</div>
               </div>
-              <div className="card-content">
-                <h3>{post.title}</h3>
-                <div className="excerpt">{stripHtml(post.excerpt)}</div>
-              </div>
+              <div className="card-content mixed-content">
+  <h3>{post.title}</h3>
+  <div className="excerpt">{stripHtml(post.excerpt)}</div>
+</div>
             </article>
           ))}
         </div>

@@ -1,6 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import { supabase } from '../utils/supabaseClient';
+
+const BUNNY_PULLZONE = 'https://gangolliassets.b-cdn.net';
+const DEFAULT_AUTHOR = {
+  name: 'Admin',
+  role: 'Administrator',
+  avatar: '/icons/icon512_maskable.png'
+};
+
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return null;
+  const fileName = imageUrl.split('/').pop().split('?')[0];
+  return `${BUNNY_PULLZONE}/${fileName}`;
+};
 
 const PostDetail = () => {
   const [post, setPost] = useState(null);
@@ -9,28 +22,64 @@ const PostDetail = () => {
   const { id } = useParams();
 
   useEffect(() => {
-    axios
-      .get(`http://localhost/gangolli/wp-json/wp/v2/posts/${id}`)
-      .then((response) => {
-        setPost(response.data);
+    const fetchPost = async () => {
+      try {
+        const { data, error: postError } = await supabase
+          .from('posts')
+          .select(`
+            *,
+            categories(*),
+            profiles(*)
+          `)
+          .eq('id', id)
+          .single();
+
+        if (postError) throw postError;
+        setPost(data);
         setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error('Error fetching post:', error);
         setError('Failed to load post. Please try again later.');
         setLoading(false);
-      });
+      }
+    };
+
+    fetchPost();
   }, [id]);
 
-  if (loading) return <div className="container">Loading...</div>;
-  if (error) return <div className="container">{error}</div>;
-  if (!post) return <div className="container">Post not found.</div>;
+  if (loading) return <div className="loader"><div className="spinner"></div></div>;
+  if (error) return <div className="error-message">{error}</div>;
+  if (!post) return <div className="not-found">Post not found.</div>;
 
   return (
-    <div className="container">
-      <div className="post-detail">
-        <h1>{post.title.rendered}</h1>
-        <div dangerouslySetInnerHTML={{ __html: post.content.rendered }} />
+    <div className="post-detail">
+      {post.featured_image && (
+        <div
+          className="post-hero"
+          style={{ backgroundImage: `url(${getImageUrl(post.featured_image)})` }}
+        >
+          <div className="post-hero-overlay"></div>
+        </div>
+      )}
+      <div className="post-content">
+        <div className="post-meta">
+          <span className="post-category">{post.categories?.name}</span>
+          <span className="post-date">
+            {new Date(post.created_at).toLocaleDateString()}
+          </span>
+          <div className="author-info">
+            <img 
+              src={post.profiles?.avatar_url || DEFAULT_AUTHOR.avatar} 
+              alt={post.profiles?.name || DEFAULT_AUTHOR.name}
+              className="author-avatar"
+            />
+            <span className="author-name">
+              By {post.profiles?.name || DEFAULT_AUTHOR.name}
+            </span>
+          </div>
+        </div>
+        <h1 className="mixed-content">{post.title}</h1>
+        <div className="post-body mixed-content" dangerouslySetInnerHTML={{ __html: post.content }} />
       </div>
     </div>
   );

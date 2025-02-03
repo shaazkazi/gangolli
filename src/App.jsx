@@ -9,6 +9,9 @@ import ScrollToTop from './components/ScrollToTop';
 import SubmitPost from './pages/SubmitPost';
 import CategoryPage from './pages/CategoryPage';
 import AllPosts from './pages/AllPosts'; // Create this new component
+import '@fontsource/baloo-tamma-2'
+import '@fontsource/poppins'
+
 
 const App = () => {
   return (

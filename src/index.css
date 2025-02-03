@@ -3562,3 +3562,49 @@ h1, h2, h3 {
   margin: 16px 0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+:root {
+  --font-kannada: 'Baloo Tamma 2', system-ui;
+  --font-english: 'Poppins', sans-serif;
+}
+
+/* Font settings for mixed language content */
+.mixed-content {
+  font-family: var(--font-english), var(--font-kannada);
+}
+
+/* Kannada characters will automatically use Baloo Tamma 2 */
+:lang(kn) {
+  font-family: var(--font-kannada);
+}
+
+/* English characters will use Poppins */
+:lang(en) {
+  font-family: var(--font-english);
+}
+.mixed-content {
+  font-family: 'Poppins', 'Baloo Tamma 2', system-ui;
+}
+
+.mixed-content:lang(kn) {
+  font-family: 'Baloo Tamma 2', system-ui;
+}
+
+.mixed-content:lang(en) {
+  font-family: 'Poppins', system-ui;
+}
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.author-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author-name {
+  font-weight: 500;
+}
