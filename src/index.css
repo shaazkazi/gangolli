@@ -3845,3 +3845,6 @@ h1, h2, h3 {
 .mixed-content:lang(en) {
   font-family: var(--font-english), system-ui;
 }
+.card-image {
+  filter: blur(0px);
+}
