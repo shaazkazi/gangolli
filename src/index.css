@@ -3969,4 +3969,40 @@ h1, h2, h3 {
 .nav-links a.active::after {
   width: 30%;
 }
+.submit-button {
+  background: var(--accent-color);
+  color: #ffffff !important;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
+}
+
+.submit-button:hover {
+  transform: translateY(-2px);
+  background: #0b5ed7;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(13, 110, 253, 0.2);
+}
+
+.submit-button svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+}
+
+.submit-button:hover svg {
+  transform: translateX(2px);
+}
 
