@@ -3848,3 +3848,6 @@ h1, h2, h3 {
 .card-image {
   filter: blur(0px);
 }
+.see-more-btn {
+  color: #14213d;
+}
