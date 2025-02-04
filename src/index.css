@@ -3868,4 +3868,20 @@ h1, h2, h3 {
   transform: translateY(-8px);
   box-shadow: 0 8px 25px rgba(13, 110, 253, 0.2);
 }
+.post-date {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.publish-date {
+  color: var(--text-secondary);
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--accent-color);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #ffffff;
+}
 
