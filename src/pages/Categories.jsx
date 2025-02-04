@@ -13,49 +13,49 @@ const getImageUrl = (imageUrl) => {
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [posts, setPosts] = useState({});
+  const [loading, setLoading] = useState(true);
 
+  // Fetch categories immediately and independently
   useEffect(() => {
     const fetchCategories = async () => {
-      try {
-        const { data: categoriesData, error: categoriesError } = await supabase
-          .from('categories')
-          .select('*')
-          .order('name');
-
-        if (categoriesError) throw categoriesError;
-        setCategories(categoriesData);
-        
-        const postsData = {};
-        for (const category of categoriesData) {
-          const { data: categoryPostsData } = await supabase
-            .from('posts')
-            .select(`
-              *,
-              categories(*),
-              profiles(*)
-            `)
-            .eq('category_id', category.id)
-            .order('created_at', { ascending: false })
-            .limit(4);
-
-          postsData[category.id] = categoryPostsData;
-        }
-        setPosts(postsData);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to load categories');
-        setLoading(false);
-      }
+      const { data } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+      
+      setCategories(data || []);
+      setLoading(false); // Show category headers immediately
     };
-
     fetchCategories();
   }, []);
 
+  // Fetch posts for each category in parallel
+  useEffect(() => {
+    if (categories.length) {
+      const fetchPostsForCategories = async () => {
+        const promises = categories.map(category => 
+          supabase
+            .from('posts')
+            .select(`*, categories(*), profiles(*)`)
+            .eq('category_id', category.id)
+            .order('created_at', { ascending: false })
+            .limit(4)
+        );
+
+        const results = await Promise.all(promises);
+        const postsData = {};
+        results.forEach((result, index) => {
+          postsData[categories[index].id] = result.data;
+        });
+        setPosts(postsData);
+      };
+
+      fetchPostsForCategories();
+    }
+  }, [categories]);
+
   if (loading) return <div className="loader"><div className="spinner"></div></div>;
-  if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="categories-page">
