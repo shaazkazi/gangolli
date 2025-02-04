@@ -55,8 +55,13 @@ const SubmitPost = () => {
   const generateSlug = (title) => {
     return title
       .toLowerCase()
-      .replace(/[^a-zA-Z0-9\s]/g, '')
-      .replace(/\s+/g, '-');
+      .trim()
+      .normalize('NFD')  // Normalize Unicode characters
+      .replace(/[\u0300-\u036f]/g, '')  // Remove diacritics
+      .replace(/[^\p{L}\p{N}\s-]/gu, '') // Keep letters, numbers across all languages
+      .replace(/\s+/g, '-')  // Replace spaces with hyphens
+      .replace(/-+/g, '-')   // Remove consecutive hyphens
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
   };
 
   const handleTitleChange = (e) => {
@@ -124,7 +129,8 @@ const SubmitPost = () => {
           <input 
             type="email" 
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+
+            onChange={handleTitleChange}
             placeholder="Email" 
             required 
           />
