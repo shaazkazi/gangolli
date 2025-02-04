@@ -3970,8 +3970,8 @@ h1, h2, h3 {
   width: 30%;
 }
 .submit-button {
-  background: var(--accent-color);
-  color: #ffffff !important;
+  background: #ffffff;
+  color: var(--accent-color) !important;
   padding: 0.8rem 1.5rem;
   border-radius: 8px;
   font-weight: 600;
@@ -3987,8 +3987,8 @@ h1, h2, h3 {
 }
 
 .submit-button:hover {
-  background: #0b5ed7;
-  border-color: #0b5ed7;
+  background: var(--accent-color);
+  color: #ffffff !important;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(13, 110, 253, 0.25);
 }
@@ -3996,5 +3996,5 @@ h1, h2, h3 {
 .submit-button:active {
   transform: translateY(0);
   background: #0a58ca;
-  border-color: #0a58ca;
+  color: #ffffff !important;
 }
