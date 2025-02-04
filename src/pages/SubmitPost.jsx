@@ -125,24 +125,28 @@ const SubmitPost = () => {
     <div className="submit-post-page">
       {!session ? (
         <form onSubmit={handleLogin} className="login-form">
-          <h2>Login to Submit Post</h2>
-          <input 
-            type="email" 
-            value={email}
-
-            onChange={handleTitleChange}
-            placeholder="Email" 
-            required 
-          />
-          <input 
-            type="password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password" 
-            required 
-          />
-          <button type="submit">Login</button>
-        </form>
+        <h2>Login to Submit Post</h2>
+        <input 
+          type="email" 
+          name="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email" 
+          required 
+          className="login-input"
+        />
+        <input 
+          type="password" 
+          name="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password" 
+          required 
+          className="login-input"
+        />
+        <button type="submit" className="login-button">Login</button>
+      </form>
+      
       ) : (
         <form onSubmit={handleSubmit} className="post-form">
           <h2>Submit New Post</h2>
