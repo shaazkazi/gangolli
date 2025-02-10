@@ -8,9 +8,22 @@ const Header = () => {
     <>
       <header className="main-header">
         <div className="header-container">
-          <Link to="/" className="logo">
-            GangolliNews
-          </Link>
+        <Link to="/" className="logo">
+  Gang
+  <img 
+    src="/icons/admin.svg" 
+    alt="" 
+    width="20" 
+    height="20" 
+    style={{ 
+      verticalAlign: 'middle',
+      marginBottom: '4px',
+      display: 'inline-block'
+    }} 
+  />
+  lliNews
+</Link>
+
           <nav className="nav-links">
             <Link to="/">Home</Link>
             <Link to="/categories">Categories</Link>
