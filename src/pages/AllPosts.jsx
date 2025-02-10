@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import { useNavigate } from 'react-router-dom';
+import { formatDate } from '../utils/dateFormatter';
 
 const AllPosts = () => {
   const [posts, setPosts] = useState([]);
@@ -12,18 +13,17 @@ const AllPosts = () => {
       try {
         const { data, error } = await supabase
           .from('posts')
-          .select(`
-            *,
+          .select(`*,
             categories(*),
             profiles(*)
           `)
           .order('created_at', { ascending: false });
-          
+
         if (error) throw error;
         setPosts(data);
-        setLoading(false);
       } catch (error) {
         console.error('Error:', error);
+      } finally {
         setLoading(false);
       }
     };
@@ -33,13 +33,22 @@ const AllPosts = () => {
 
   if (loading) return <div className="loader"><div className="spinner"></div></div>;
 
-  const BUNNY_PULLZONE = 'https://gangolliassets.b-cdn.net'
+  const BUNNY_PULLZONE = 'https://gangolliassets.b-cdn.net';
 
   const getImageUrl = (imageUrl) => {
-    if (!imageUrl) return null
-    const fileName = imageUrl.split('/').pop().split('?')[0]
-    return `${BUNNY_PULLZONE}/${fileName}`
-  }
+    if (!imageUrl) return null;
+    const fileName = imageUrl.split('/').pop().split('?')[0];
+    return `${BUNNY_PULLZONE}/${fileName}`;
+  };
+
+  // ✅ Updated function to format the date as "DD/MM/YYYY"
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-based
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   const handleCardClick = (slug) => {
     navigate(`/post/${slug}`);
@@ -57,9 +66,9 @@ const AllPosts = () => {
             style={{ cursor: 'pointer' }}
           >
             <div className="card-image" 
-              style={{backgroundImage: `url(${post.featured_image})`}}>
+              style={{ backgroundImage: `url(${getImageUrl(post.featured_image)})` }}>
               <div className="publish-date">
-                {new Date(post.created_at).toLocaleDateString()}
+                {formatDate(post.created_at)}
               </div>
             </div>
             <div className="card-content">

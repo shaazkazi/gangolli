@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../utils/supabaseClient'
 import Header from '../components/Header'
 import Footer from '../components/Footer';
-
+import { formatDate } from '../utils/dateFormatter';
 
 const BUNNY_PULLZONE = 'https://gangolliassets.b-cdn.net'
 const DEFAULT_AUTHOR = {
@@ -271,9 +271,7 @@ export default function Post() {
                       </div>
                       <div className="related-post-content">
                         <h3>{post.title}</h3>
-                        <span className="post-date">
-                          {new Date(post.created_at).toLocaleDateString()}
-                        </span>
+                        <span className="post-date">{formatDate(post.created_at)}</span>
                       </div>
                     </article>
                   ))}

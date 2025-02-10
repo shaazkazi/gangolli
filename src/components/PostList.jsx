@@ -134,7 +134,14 @@ const PostList = () => {
               <div className={`card-image ${!post.featured_image ? 'no-image' : ''}`}
                 style={post.featured_image ? { backgroundImage: `url(${getImageUrl(post.featured_image)})` } : undefined}>
                 {!post.featured_image && <DefaultPostImage />}
-                <div className="publish-date">{new Date(post.created_at).toLocaleDateString()}</div>
+                <div className="publish-date">
+  {new Date(post.created_at).toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })}
+</div>
+
               </div>
               <div className="card-content">
   <h3 className="mixed-content" lang="kn">{post.title}</h3>
@@ -163,7 +170,13 @@ const PostList = () => {
                 <div className={`card-image ${!post.featured_image ? 'no-image' : ''}`}
                   style={post.featured_image ? { backgroundImage: `url(${getImageUrl(post.featured_image)})` } : undefined}>
                   {!post.featured_image && <DefaultPostImage />}
-                  <div className="publish-date">{new Date(post.created_at).toLocaleDateString()}</div>
+                  <div className="publish-date">
+  {new Date(post.created_at).toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })}
+</div>
                 </div>
                 <div className="card-content">
   <h3 className="mixed-content" lang="kn">{post.title}</h3>
