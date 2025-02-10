@@ -11,12 +11,24 @@ const getImageUrl = (imageUrl) => {
   return `${BUNNY_PULLZONE}/${fileName}`
 }
 
+const cleanExcerpt = (html) => {
+  if (!html) return '';
+  return html
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&zwnj;/g, '')
+    .replace(/<[^>]+style="[^"]*"[^>]*>/g, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [posts, setPosts] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Fetch categories immediately and independently
   useEffect(() => {
     const fetchCategories = async () => {
       const { data } = await supabase
@@ -25,12 +37,11 @@ const Categories = () => {
         .order('name');
       
       setCategories(data || []);
-      setLoading(false); // Show category headers immediately
+      setLoading(false);
     };
     fetchCategories();
   }, []);
 
-  // Fetch posts for each category in parallel
   useEffect(() => {
     if (categories.length) {
       const fetchPostsForCategories = async () => {
@@ -99,7 +110,7 @@ const Categories = () => {
                   </div>
                   <div className="post-content">
                     <h3>{post.title}</h3>
-                    <div className="post-excerpt">{post.excerpt}</div>
+                    <div className="post-excerpt">{cleanExcerpt(post.excerpt)}</div>
                   </div>
                 </Link>
               ))}

@@ -55,8 +55,20 @@ const CategoryPage = () => {
   const handlePostClick = (post) => {
     navigate(`/post/${post.slug}`);
   };
+    const cleanExcerpt = (html) => {
+      if (!html) return '';
+      return html
+        .replace(/</g, '<')
+        .replace(/>/g, '>')
+        .replace(/‌/g, '')
+        .replace(/<[^>]+style="[^"]*"[^>]*>/g, '')
+        .replace(/<[^>]*>/g, '')
+        .replace(/ /g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    };
 
-  if (loading) return <div className="loader"><div className="spinner"></div></div>;
+    if (loading) return <div className="loader"><div className="spinner"></div></div>;
 
   return (
     <div className="category-page">
@@ -86,7 +98,7 @@ const CategoryPage = () => {
             </div>
             <div className="card-content">
               <h3>{post.title}</h3>
-              <div className="excerpt">{post.excerpt}</div>
+              <div className="excerpt">{cleanExcerpt(post.excerpt)}</div>
             </div>
           </article>
         ))}
