@@ -3898,8 +3898,8 @@ h1, h2, h3 {
 
 .submit-button:hover {
   transform: translateY(-2px);
-  background: #fdb644; /* Lighter shade of accent color */
+  background: #ff0000; /* Lighter shade of accent color */
   box-shadow: 0 4px 12px rgba(252, 163, 17, 0.3);
-  color: #000 !important; /* Ensure text remains dark and readable */
+  color: #fca311 !important; /* Ensure text remains dark and readable */
 }
 
