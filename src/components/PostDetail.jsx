@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '../utils/supabaseClient';
 
 const BUNNY_PULLZONE = 'https://gangolliassets.b-cdn.net';
@@ -60,8 +61,30 @@ const PostDetail = () => {
   if (error) return <div className="error-message">{error}</div>;
   if (!post) return <div className="not-found">Post not found.</div>;
 
+  // Extract necessary data for sharing
+  const postTitle = post.title || 'Gangolli News';
+  const postExcerpt = post.excerpt || post.content?.substring(0, 150) || 'Latest news and updates.';
+  const postImage = getImageUrl(post.featured_image) || '/icons/icon512_rounded.png';
+  const postUrl = `${window.location.origin}/post/${post.id}`;
+
   return (
     <div className="post-detail">
+      {/* Dynamic Meta Tags for Social Media Sharing */}
+      <Helmet>
+        <title>{postTitle} - Gangolli News</title>
+        <meta name="description" content={postExcerpt} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={postTitle} />
+        <meta property="og:description" content={postExcerpt} />
+        <meta property="og:image" content={postImage} />
+        <meta property="og:url" content={postUrl} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={postTitle} />
+        <meta name="twitter:description" content={postExcerpt} />
+        <meta name="twitter:image" content={postImage} />
+      </Helmet>
+
+      {/* Post Content */}
       {post.featured_image && (
         <div
           className="post-hero"
@@ -87,7 +110,7 @@ const PostDetail = () => {
             </span>
           </div>
         </div>
-        <h1 className="mixed-content">{post.title}</h1>
+        <h1 className="mixed-content">{postTitle}</h1>
         <div 
           className="post-body mixed-content" 
           dangerouslySetInnerHTML={{ __html: cleanContent(post.content) }} 

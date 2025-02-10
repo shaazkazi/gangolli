@@ -4,6 +4,7 @@ import { supabase } from '../utils/supabaseClient'
 import Header from '../components/Header'
 import Footer from '../components/Footer';
 import { formatDate } from '../utils/dateFormatter';
+import { Helmet } from 'react-helmet-async';
 
 const BUNNY_PULLZONE = 'https://gangolliassets.b-cdn.net'
 const DEFAULT_AUTHOR = {
@@ -204,10 +205,31 @@ export default function Post() {
       }
     }
   };
+
+  const stripHtml = (html) => {
+    return html.replace(/<[^>]*>/g, '');
+  };
+
+  const postTitle = post?.title || 'Gangolli News';
+  const postExcerpt = stripHtml(post?.excerpt || '');
+  const postImage = post?.featured_image ? getImageUrl(post.featured_image) : '/icons/icon512_rounded.png';
+  const postUrl = window.location.href;
+
   if (loading) return <div className="loader"><div className="spinner"></div></div>
   if (!post) return <div className="error-message">Post not found</div>
     return (
       <div className="post-page">
+        <Helmet>
+          <title>{postTitle} - Gangolli News</title>
+          <meta name="description" content={postExcerpt} />
+          <meta property="og:title" content={postTitle} />
+          <meta property="og:description" content={postExcerpt} />
+          <meta property="og:image" content={postImage} />
+          <meta property="og:url" content={postUrl} />
+          <meta property="twitter:title" content={postTitle} />
+          <meta property="twitter:description" content={postExcerpt} />
+          <meta property="twitter:image" content={postImage} />
+        </Helmet>
         <div className="progress-bar" style={{ width: `${scrollProgress}%` }} />
         <Header />
         <article className="single-post">
