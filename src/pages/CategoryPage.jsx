@@ -93,7 +93,11 @@ const CategoryPage = () => {
             <div className="card-image" 
               style={{backgroundImage: `url(${getImageUrl(post.featured_image)})`}}>
               <div className="publish-date">
-                {new Date(post.created_at).toLocaleDateString()}
+                {new Date(post.created_at).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                })}
               </div>
             </div>
             <div className="card-content">
