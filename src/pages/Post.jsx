@@ -9,7 +9,7 @@ const BUNNY_PULLZONE = 'https://gangolliassets.b-cdn.net'
 const DEFAULT_AUTHOR = {
   name: 'Admin',
   role: 'Administrator',
-  avatar: '/icons/icon512_maskable.png'
+  avatar: '/icons/admin.svg'
 }
 
 const getImageUrl = (imageUrl) => {
