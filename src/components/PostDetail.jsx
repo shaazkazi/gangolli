@@ -15,6 +15,15 @@ const getImageUrl = (imageUrl) => {
   return `${BUNNY_PULLZONE}/${fileName}`;
 };
 
+const cleanContent = (content) => {
+  if (!content) return '';
+  return content
+    .replace(/<p><br><\/p>/g, '')
+    .replace(/(<br\s*\/?>){2,}/g, '<br/>')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 const PostDetail = () => {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -68,8 +77,8 @@ const PostDetail = () => {
             {new Date(post.created_at).toLocaleDateString()}
           </span>
           <div className="author-info">
-            <img 
-              src={post.profiles?.avatar_url || DEFAULT_AUTHOR.avatar} 
+            <img
+              src={post.profiles?.avatar_url || DEFAULT_AUTHOR.avatar}
               alt={post.profiles?.name || DEFAULT_AUTHOR.name}
               className="author-avatar"
             />
@@ -79,7 +88,10 @@ const PostDetail = () => {
           </div>
         </div>
         <h1 className="mixed-content">{post.title}</h1>
-        <div className="post-body mixed-content" dangerouslySetInnerHTML={{ __html: post.content }} />
+        <div 
+          className="post-body mixed-content" 
+          dangerouslySetInnerHTML={{ __html: cleanContent(post.content) }} 
+        />
       </div>
     </div>
   );

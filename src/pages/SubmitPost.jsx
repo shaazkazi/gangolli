@@ -84,25 +84,35 @@ const SubmitPost = () => {
     }
   };
 
+  const cleanContent = (content) => {
+    return content
+      .replace(/<p><br><\/p>/g, '') // Remove empty paragraphs
+      .replace(/(<br\s*\/?>){2,}/g, '<br/>') // Convert multiple breaks to single
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+  
     try {
       let imageUrl = null;
       if (image) {
         imageUrl = await uploadImage(image);
       }
 
+      const cleanedContent = cleanContent(content);
+
       const { data, error } = await supabase
         .from('posts')
         .insert([
           {
             title,
-            content,
+            content: cleanedContent,
             category_id: category,
             featured_image: imageUrl,
             author_id: session.user.id,
-            excerpt: content.substring(0, 200),
+            excerpt: cleanedContent.substring(0, 200),
             slug: slug || generateSlug(title)
           }
         ])
@@ -115,12 +125,11 @@ const SubmitPost = () => {
       setCategory('');
       setImage(null);
       setSlug('');
-      
+    
     } catch (error) {
       console.error('Error:', error.message);
     }
   };
-
   return (
     <div className="submit-post-page">
       {!session ? (
