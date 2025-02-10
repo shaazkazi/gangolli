@@ -4007,3 +4007,99 @@ h1, h2, h3 {
     z-index: 1000;
   }
 }
+.mobile-bottom-nav {
+  background: #14213d;
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+  filter: invert(65%) sepia(75%) saturate(426%) hue-rotate(346deg) brightness(101%) contrast(94%);
+  transition: all 0.3s ease;
+}
+
+.mobile-bottom-nav a {
+  color: #fca311;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Creative active state */
+.mobile-bottom-nav a.active {
+  position: relative;
+  transform: translateY(-12px);
+}
+
+.mobile-bottom-nav a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: #fca311;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #fca311;
+}
+
+.mobile-bottom-nav a.active .nav-icon {
+  transform: scale(1.2);
+  filter: invert(65%) sepia(75%) saturate(426%) hue-rotate(346deg) brightness(120%) contrast(94%);
+}
+.mobile-bottom-nav {
+  background: #14213d;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 0.8rem 1rem calc(0.8rem + env(safe-area-inset-bottom));
+  z-index: 1000;
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+  filter: brightness(0) saturate(100%) invert(65%) sepia(75%) saturate(426%) hue-rotate(346deg) brightness(101%) contrast(94%);
+}
+
+.mobile-bottom-nav a {
+  color: #fca311;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-bottom-nav a.active {
+  position: relative;
+}
+
+.mobile-bottom-nav a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: #fca311;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #fca311;
+}
+
+.mobile-bottom-nav a.active .nav-icon {
+  transform: scale(1.1);
+}
