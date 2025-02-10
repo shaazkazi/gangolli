@@ -210,26 +210,34 @@ export default function Post() {
     return html.replace(/<[^>]*>/g, '');
   };
 
-  const postTitle = post?.title || 'Gangolli News';
-  const postExcerpt = stripHtml(post?.excerpt || '');
-  const postImage = post?.featured_image ? getImageUrl(post.featured_image) : '/icons/icon512_rounded.png';
-  const postUrl = window.location.href;
-
   if (loading) return <div className="loader"><div className="spinner"></div></div>
   if (!post) return <div className="error-message">Post not found</div>
-    return (
-      <div className="post-page">
-        <Helmet>
-          <title>{postTitle} - Gangolli News</title>
-          <meta name="description" content={postExcerpt} />
-          <meta property="og:title" content={postTitle} />
-          <meta property="og:description" content={postExcerpt} />
-          <meta property="og:image" content={postImage} />
-          <meta property="og:url" content={postUrl} />
-          <meta property="twitter:title" content={postTitle} />
-          <meta property="twitter:description" content={postExcerpt} />
-          <meta property="twitter:image" content={postImage} />
-        </Helmet>
+
+  const postTitle = post.title || 'Gangolli News'
+  const postExcerpt = stripHtml(post.excerpt || '')
+  const postImage = post.featured_image 
+    ? `${BUNNY_PULLZONE}/${post.featured_image.split('/').pop().split('?')[0]}`
+    : `${window.location.origin}/icons/icon512_rounded.png`
+  const postUrl = window.location.href
+
+  return (
+    <div className="post-page">
+      <Helmet>
+        <title>{postTitle} - Gangolli News</title>
+        <meta name="description" content={postExcerpt} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={postTitle} />
+        <meta property="og:description" content={postExcerpt} />
+        <meta property="og:image" content={postImage} />
+        <meta property="og:url" content={postUrl} />
+        <meta property="og:site_name" content="Gangolli News" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={postTitle} />
+        <meta name="twitter:description" content={postExcerpt} />
+        <meta name="twitter:image" content={postImage} />
+        <meta name="twitter:site" content="@gangolli_news" />
+        <meta name="twitter:creator" content="@gangolli_news" />
+      </Helmet>
         <div className="progress-bar" style={{ width: `${scrollProgress}%` }} />
         <Header />
         <article className="single-post">

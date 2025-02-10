@@ -64,7 +64,10 @@ const PostDetail = () => {
   // Extract necessary data for sharing
   const postTitle = post.title || 'Gangolli News';
   const postExcerpt = post.excerpt || post.content?.substring(0, 150) || 'Latest news and updates.';
-  const postImage = getImageUrl(post.featured_image) || '/icons/icon512_rounded.png';
+  // Update this part of your code
+const postImage = post.featured_image 
+  ? `${BUNNY_PULLZONE}/${post.featured_image.split('/').pop().split('?')[0]}`
+  : `${window.location.origin}/icons/icon512_rounded.png`;
   const postUrl = `${window.location.origin}/post/${post.id}`;
 
   return (
@@ -82,6 +85,8 @@ const PostDetail = () => {
         <meta name="twitter:title" content={postTitle} />
         <meta name="twitter:description" content={postExcerpt} />
         <meta name="twitter:image" content={postImage} />
+        <meta name="twitter:site" content="@gangolli_news" />
+        <meta name="twitter:creator" content="@gangolli_news" />
       </Helmet>
 
       {/* Post Content */}
