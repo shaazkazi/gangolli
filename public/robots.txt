@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://gangolli.netlify.app/sitemap.xml
+
+# Disallow admin and private routes
+Disallow: /admin/
+Disallow: /private/
+Disallow: /submit/
+
+# Allow static assets
+Allow: /assets/
+Allow: /icons/
+Allow: /images/
+
+# Crawl delay
+Crawl-delay: 10
