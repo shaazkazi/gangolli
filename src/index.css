@@ -4217,3 +4217,6 @@ h1, h2, h3 {
     z-index: 1000;
   }
 }
+.nav-links a:hover {
+    background: #ffb508;
+}
